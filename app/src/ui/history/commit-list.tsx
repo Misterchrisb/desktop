@@ -4,7 +4,6 @@ import { Commit } from '../../models/commit'
 import { CommitListItem } from './commit-list-item'
 import { List } from '../lib/list'
 import { IGitHubUser } from '../../lib/databases'
-import { generateGravatarUrl } from '../../lib/gravatar'
 
 const RowHeight = 48
 
@@ -33,15 +32,13 @@ export class CommitList extends React.Component<ICommitListProps, {}> {
 
     const gitHubUser =
       this.props.gitHubUsers.get(commit.author.email.toLowerCase()) || null
-
-    const avatarURL = gitHubUser
-      ? gitHubUser.avatarURL
-      : generateGravatarUrl(commit.author.email)
-
-    const avatarUser = {
-      email: commit.author.email,
-      name: commit.author.name,
-      avatarURL,
+    let avatarUser = null
+    if (gitHubUser) {
+      avatarUser = {
+        email: commit.author.email,
+        name: commit.author.name,
+        avatarURL: gitHubUser.avatarURL,
+      }
     }
 
     const isLocal = this.props.localCommitSHAs.indexOf(commit.sha) > -1

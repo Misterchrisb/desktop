@@ -11,7 +11,6 @@ import {
 } from './http'
 import { AuthenticationMode } from './2fa'
 import { uuid } from './uuid'
-import { getAvatarWithEnterpriseFallback } from './gravatar'
 
 const username: () => Promise<string> = require('username')
 
@@ -668,18 +667,12 @@ export async function fetchUser(
   try {
     const user = await api.fetchAccount()
     const emails = await api.fetchEmails()
-    const defaultEmail = emails[0].email || ''
-    const avatarURL = getAvatarWithEnterpriseFallback(
-      user.avatar_url,
-      defaultEmail,
-      endpoint
-    )
     return new Account(
       user.login,
       endpoint,
       token,
       emails,
-      avatarURL,
+      user.avatar_url,
       user.id,
       user.name
     )

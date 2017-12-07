@@ -3,7 +3,6 @@ import { IDataStore, ISecureStore } from './stores'
 import { getKeyForAccount } from '../auth'
 import { Account } from '../../models/account'
 import { API, EmailVisibility } from '../api'
-import { getAvatarWithEnterpriseFallback } from '../gravatar'
 import { fatalError } from '../fatal-error'
 
 /** The data-only interface for storage. */
@@ -207,19 +206,12 @@ async function updatedAccount(account: Account): Promise<Account> {
   const user = await api.fetchAccount()
   const emails = await api.fetchEmails()
 
-  const defaultEmail = emails[0].email || ''
-  const avatarURL = getAvatarWithEnterpriseFallback(
-    user.avatar_url,
-    defaultEmail,
-    account.endpoint
-  )
-
   return new Account(
     account.login,
     account.endpoint,
     account.token,
     emails,
-    avatarURL,
+    user.avatar_url,
     user.id,
     user.name
   )

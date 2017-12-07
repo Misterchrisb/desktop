@@ -13,7 +13,6 @@ import { Button } from '../lib/button'
 import { Avatar } from '../lib/avatar'
 import { Loading } from '../lib/loading'
 import { structuralEquals } from '../../lib/equality'
-import { generateGravatarUrl } from '../../lib/gravatar'
 
 interface ICommitMessageProps {
   readonly onCreateCommit: (message: ICommitMessage) => Promise<boolean>
@@ -193,16 +192,11 @@ export class CommitMessage extends React.Component<
       ? `Committing as ${commitAuthor.name} <${commitAuthor.email}>`
       : undefined
     let avatarUser = undefined
-
-    if (commitAuthor) {
-      const avatarURL = this.props.gitHubUser
-        ? this.props.gitHubUser.avatarURL
-        : generateGravatarUrl(commitAuthor.email)
-
+    if (commitAuthor && this.props.gitHubUser) {
       avatarUser = {
         email: commitAuthor.email,
         name: commitAuthor.name,
-        avatarURL,
+        avatarURL: this.props.gitHubUser.avatarURL,
       }
     }
 

@@ -7,8 +7,6 @@ import {
   GitHubUserDatabase,
   IGitHubUser,
 } from '../databases/github-user-database'
-import { getAvatarWithEnterpriseFallback } from '../gravatar'
-
 import { fatalError } from '../fatal-error'
 
 /**
@@ -94,20 +92,12 @@ export class GitHubUserStore {
       this.mentionablesEtags.set(repositoryID, response.etag)
     }
 
-    const gitHubUsers: ReadonlyArray<IGitHubUser> = response.users.map(m => {
-      const email = m.email || ''
-
-      return {
-        ...m,
-        email,
-        endpoint: account.endpoint,
-        avatarURL: getAvatarWithEnterpriseFallback(
-          m.avatar_url,
-          email,
-          account.endpoint
-        ),
-      }
-    })
+    const gitHubUsers: ReadonlyArray<IGitHubUser> = response.users.map(m => ({
+      ...m,
+      email: m.email || '',
+      endpoint: account.endpoint,
+      avatarURL: m.avatar_url,
+    }))
 
     const cachedUsers = new Array<IGitHubUser>()
     for (const user of gitHubUsers) {
@@ -208,16 +198,10 @@ export class GitHubUserStore {
         sha
       )
       if (apiCommit && apiCommit.author) {
-        const avatarURL = getAvatarWithEnterpriseFallback(
-          apiCommit.author.avatar_url,
-          email,
-          account.endpoint
-        )
-
         return {
           email,
-          avatarURL,
           login: apiCommit.author.login,
+          avatarURL: apiCommit.author.avatar_url,
           endpoint: account.endpoint,
           name: apiCommit.author.name,
         }
@@ -226,15 +210,10 @@ export class GitHubUserStore {
 
     const matchingUser = await api.searchForUserWithEmail(email)
     if (matchingUser) {
-      const avatarURL = getAvatarWithEnterpriseFallback(
-        matchingUser.avatar_url,
-        email,
-        account.endpoint
-      )
       return {
         email,
         login: matchingUser.login,
-        avatarURL,
+        avatarURL: matchingUser.avatar_url,
         endpoint: account.endpoint,
         name: matchingUser.name,
       }
